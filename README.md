@@ -1,5 +1,5 @@
 # Miniblog.Core.azureBlobStorage
-Core example on how to use Mad Kristensen's Miniblog in combination with Azure Blob Storage
+Code example on how to use Mad Kristensen's Miniblog in combination with Azure Blob Storage
 
 You can find the original repo at https://github.com/madskristensen/Miniblog.Core
 
