@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Miniblog.Core.azureBlobStorage.Models
+namespace Miniblog.Core.AzureBlobStorage.Models
 {
     public class Post
     {
@@ -47,13 +46,13 @@ namespace Miniblog.Core.azureBlobStorage.Models
         public static string CreateSlug(string title)
         {
             title = title.ToLowerInvariant().Replace(" ", "-");
-            title = RemoveDiacritics(title);
-            title = RemoveReservedUrlCharacters(title);
+            title = removeDiacritics(title);
+            title = removeReservedUrlCharacters(title);
 
             return title.ToLowerInvariant();
         }
 
-        static string RemoveReservedUrlCharacters(string text)
+        private static string removeReservedUrlCharacters(string text)
         {
             var reservedCharacters = new List<string>() { "!", "#", "$", "&", "'", "(", ")", "*", ",", "/", ":", ";", "=", "?", "@", "[", "]", "\"", "%", ".", "<", ">", "\\", "^", "_", "'", "{", "}", "|", "~", "`", "+" };
 
@@ -65,7 +64,7 @@ namespace Miniblog.Core.azureBlobStorage.Models
             return text;
         }
 
-        static string RemoveDiacritics(string text)
+        private static string removeDiacritics(string text)
         {
             var normalizedString = text.Normalize(NormalizationForm.FormD);
             var stringBuilder = new StringBuilder();
@@ -90,10 +89,10 @@ namespace Miniblog.Core.azureBlobStorage.Models
             result = result.Replace(" src=\"", " src=\"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==\" data-src=\"");
 
             // Youtube content embedded using this syntax: [youtube:xyzAbc123]
-            var video = "<div class=\"video\"><iframe width=\"560\" height=\"315\" title=\"YouTube embed\" src=\"about:blank\" data-src=\"https://www.youtube-nocookie.com/embed/{0}?modestbranding=1&amp;hd=1&amp;rel=0&amp;theme=light\" allowfullscreen></iframe></div>";
-            result = Regex.Replace(result.ToString(), @"\[youtube:(.*?)\]", (Match m) => string.Format(video, m.Groups[1].Value));
+            const string video = "<div class=\"video\"><iframe width=\"560\" height=\"315\" title=\"YouTube embed\" src=\"about:blank\" data-src=\"https://www.youtube-nocookie.com/embed/{0}?modestbranding=1&amp;hd=1&amp;rel=0&amp;theme=light\" allowfullscreen></iframe></div>";
+            result = Regex.Replace(result, @"\[youtube:(.*?)\]", (Match m) => string.Format(video, m.Groups[1].Value));
 
-            return result.ToString();
+            return result;
         }
     }
 }

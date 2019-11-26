@@ -17,8 +17,10 @@ using WilderMinds.MetaWeblog;
 using IWmmLogger = WebMarkupMin.Core.Loggers.ILogger;
 using WmmNullLogger = WebMarkupMin.Core.Loggers.NullLogger;
 
-namespace Miniblog.Core.azureBlobStorage
+namespace Miniblog.Core.AzureBlobStorage
 {
+    using Services;
+
     public class Startup
     {
         public Startup(IConfiguration configuration)

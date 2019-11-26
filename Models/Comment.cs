@@ -1,9 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-
-namespace Miniblog.Core.azureBlobStorage.Models
+﻿namespace Miniblog.Core.AzureBlobStorage.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.Security.Cryptography;
+    using System.Text;
+
     public class Comment
     {
         [Required]
@@ -25,14 +26,14 @@ namespace Miniblog.Core.azureBlobStorage.Models
 
         public string GetGravatar()
         {
-            using (var md5 = System.Security.Cryptography.MD5.Create())
+            using (var md5 = MD5.Create())
             {
                 byte[] inputBytes = Encoding.UTF8.GetBytes(Email.Trim().ToLowerInvariant());
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 // Convert the byte array to hexadecimal string
                 var sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
+                for(var i = 0; i < hashBytes.Length; i++)
                 {
                     sb.Append(hashBytes[i].ToString("X2"));
                 }

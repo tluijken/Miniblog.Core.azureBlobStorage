@@ -1,18 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml;
-
-namespace Miniblog.Core.azureBlobStorage.Models
+﻿namespace Miniblog.Core.AzureBlobStorage.Controllers
 {
+    using System;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Options;
+    using Models;
+    using Services;
+
     public class BlogController : Controller
     {
-        private IBlogService _blog;
-        private IOptionsSnapshot<BlogSettings> _settings;
+        private readonly IBlogService _blog;
+        private readonly IOptionsSnapshot<BlogSettings> _settings;
 
         public BlogController(IBlogService blog, IOptionsSnapshot<BlogSettings> settings)
         {
@@ -29,7 +31,7 @@ namespace Miniblog.Core.azureBlobStorage.Models
             ViewData["Description"] = _settings.Value.Description;
             ViewData["prev"] = $"/{page + 1}/";
             ViewData["next"] = $"/{(page <= 1 ? null : page - 1 + "/")}";
-            return View("Views/Blog/Index.cshtml", posts);
+            return View("Index", posts);
         }
 
         [Route("/blog/category/{category}/{page:int?}")]
@@ -41,7 +43,7 @@ namespace Miniblog.Core.azureBlobStorage.Models
             ViewData["Description"] = $"Articles posted in the {category} category";
             ViewData["prev"] = $"/blog/category/{category}/{page + 1}/";
             ViewData["next"] = $"/blog/category/{category}/{(page <= 1 ? null : page - 1 + "/")}";
-            return View("Views/Blog/Index.cshtml", posts);
+            return View("Index", posts);
         }
 
         // This is for redirecting potential existing URLs from the old Miniblog URL format
@@ -107,12 +109,12 @@ namespace Miniblog.Core.azureBlobStorage.Models
 
             await _blog.SavePost(existing);
 
-            await SaveFilesToDisk(existing);
+            await saveFilesToDisk(existing);
 
             return Redirect(post.GetLink());
         }
 
-        private async Task SaveFilesToDisk(Post post)
+        private async Task saveFilesToDisk(Post post)
         {
             var imgRegex = new Regex("<img[^>].+ />", RegexOptions.IgnoreCase | RegexOptions.Compiled);
             var base64Regex = new Regex("data:[^/]+/(?<ext>[a-z]+);base64,(?<base64>.+)", RegexOptions.IgnoreCase);

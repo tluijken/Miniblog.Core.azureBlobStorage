@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Miniblog.Core.azureBlobStorage.Models
+﻿namespace Miniblog.Core.AzureBlobStorage.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class LoginViewModel
     {
         [Required]

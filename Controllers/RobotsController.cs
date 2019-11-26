@@ -1,20 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.SyndicationFeed;
-using Microsoft.SyndicationFeed.Atom;
-using Microsoft.SyndicationFeed.Rss;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-
-namespace Miniblog.Core.azureBlobStorage
+﻿namespace Miniblog.Core.AzureBlobStorage.Controllers
 {
+    using System;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Options;
+    using Microsoft.SyndicationFeed;
+    using Microsoft.SyndicationFeed.Atom;
+    using Microsoft.SyndicationFeed.Rss;
+    using Models;
+    using Services;
+
     public class RobotsController : Controller
     {
-        private IBlogService _blog;
-        private IOptionsSnapshot<BlogSettings> _settings;
+        private readonly IBlogService _blog;
+        private readonly IOptionsSnapshot<BlogSettings> _settings;
 
         public RobotsController(IBlogService blog, IOptionsSnapshot<BlogSettings> settings)
         {
@@ -49,7 +51,7 @@ namespace Miniblog.Core.azureBlobStorage
 
                 var posts = await _blog.GetPosts(int.MaxValue);
 
-                foreach (Models.Post post in posts)
+                foreach (Post post in posts)
                 {
                     var lastMod = new[] { post.PubDate, post.LastModified };
 
@@ -80,7 +82,8 @@ namespace Miniblog.Core.azureBlobStorage
                 xml.WriteStartElement("service");
 
                 xml.WriteElementString("enginename", "Miniblog.Core.azureBlobStorage");
-                xml.WriteElementString("enginelink", "http://github.com/madskristensen/Miniblog.Core.azureBlobStorage/");
+                xml.WriteElementString("enginelink",
+                    "http://github.com/madskristensen/Miniblog.Core.azureBlobStorage/");
                 xml.WriteElementString("homepagelink", host);
 
                 xml.WriteStartElement("apis");
@@ -101,14 +104,15 @@ namespace Miniblog.Core.azureBlobStorage
         public async Task Rss(string type)
         {
             Response.ContentType = "application/xml";
-            string host = Request.Scheme + "://" + Request.Host;
+            var host = Request.Scheme + "://" + Request.Host;
 
-            using (XmlWriter xmlWriter = XmlWriter.Create(Response.Body, new XmlWriterSettings() { Async = true, Indent = true }))
+            using (var xmlWriter =
+                XmlWriter.Create(Response.Body, new XmlWriterSettings { Async = true, Indent = true }))
             {
-                var posts = await _blog.GetPosts(10);
-                var writer = await GetWriter(type, xmlWriter, posts.Max(p => p.PubDate));
+                var posts = (await _blog.GetPosts(10)).ToList();
+                var writer = await getWriter(type, xmlWriter, posts.Max(p => p.PubDate));
 
-                foreach (Models.Post post in posts)
+                foreach (var post in posts)
                 {
                     var item = new AtomEntry
                     {
@@ -117,10 +121,10 @@ namespace Miniblog.Core.azureBlobStorage
                         Id = host + post.GetLink(),
                         Published = post.PubDate,
                         LastUpdated = post.LastModified,
-                        ContentType = "html",
+                        ContentType = "html"
                     };
 
-                    foreach (string category in post.Categories)
+                    foreach (var category in post.Categories)
                     {
                         item.AddCategory(new SyndicationCategory(category));
                     }
@@ -133,9 +137,9 @@ namespace Miniblog.Core.azureBlobStorage
             }
         }
 
-        private async Task<ISyndicationFeedWriter> GetWriter(string type, XmlWriter xmlWriter, DateTime updated)
+        private async Task<ISyndicationFeedWriter> getWriter(string type, XmlWriter xmlWriter, DateTime updated)
         {
-            string host = Request.Scheme + "://" + Request.Host + "/";
+            var host = Request.Scheme + "://" + Request.Host + "/";
 
             if (type.Equals("rss", StringComparison.OrdinalIgnoreCase))
             {
@@ -151,7 +155,8 @@ namespace Miniblog.Core.azureBlobStorage
             await atom.WriteTitle(_settings.Value.Name);
             await atom.WriteId(host);
             await atom.WriteSubtitle(_settings.Value.Description);
-            await atom.WriteGenerator("Miniblog.Core.azureBlobStorage", "https://github.com/madskristensen/Miniblog.Core.azureBlobStorage", "1.0");
+            await atom.WriteGenerator("Miniblog.Core.azureBlobStorage",
+                "https://github.com/madskristensen/Miniblog.Core.azureBlobStorage", "1.0");
             await atom.WriteValue("updated", updated.ToString("yyyy-MM-ddTHH:mm:ssZ"));
             return atom;
         }

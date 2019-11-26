@@ -1,4 +1,4 @@
-﻿namespace Miniblog.Core.azureBlobStorage
+﻿namespace Miniblog.Core.AzureBlobStorage
 {
     public class BlogSettings
     {

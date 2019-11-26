@@ -1,21 +1,21 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Miniblog.Core.azureBlobStorage.Models;
-using System;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Miniblog.Core.azureBlobStorage.Controllers
+﻿namespace Miniblog.Core.AzureBlobStorage.Controllers
 {
+    using System;
+    using System.Security.Claims;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Cookies;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Models;
+
     [Authorize]
     public class AccountController : Controller
     {
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
         public AccountController(IConfiguration config)
         {
@@ -38,7 +38,8 @@ namespace Miniblog.Core.azureBlobStorage.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
 
-            if (ModelState.IsValid && model.UserName == _config["user:username"] && VerifyHashedPassword(model.Password, _config))
+            if (ModelState.IsValid && model.UserName == _config["user:username"] &&
+                VerifyHashedPassword(model.Password, _config))
             {
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                 identity.AddClaim(new Claim(ClaimTypes.Name, _config["user:username"]));
@@ -67,11 +68,11 @@ namespace Miniblog.Core.azureBlobStorage.Controllers
             byte[] saltBytes = Encoding.UTF8.GetBytes(config["user:salt"]);
 
             byte[] hashBytes = KeyDerivation.Pbkdf2(
-                password: password,
-                salt: saltBytes,
-                prf: KeyDerivationPrf.HMACSHA1,
-                iterationCount: 1000,
-                numBytesRequested: 256 / 8
+                password,
+                saltBytes,
+                KeyDerivationPrf.HMACSHA1,
+                1000,
+                256 / 8
             );
 
             string hashText = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
