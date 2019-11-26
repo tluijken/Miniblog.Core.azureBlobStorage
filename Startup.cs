@@ -46,7 +46,7 @@ namespace Miniblog.Core.AzureBlobStorage
         {
             services.AddMvc();
 
-            services.AddSingleton<IBlogService, FileBlogService>();
+            services.AddSingleton<IBlogService, AzureBlobStorageBlobService>();
             services.Configure<BlogSettings>(Configuration.GetSection("blog"));
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMetaWeblog<MetaWeblogService>();

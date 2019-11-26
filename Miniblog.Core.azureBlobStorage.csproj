@@ -20,6 +20,7 @@
       <Version>2.4.2</Version>
     </PackageReference>
     <PackageReference Include="WilderMinds.MetaWeblog" Version="1.2.2" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
   <ItemGroup>
